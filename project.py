@@ -8,14 +8,14 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# --- CONFIGURATION ---
+#  CONFIGURATION 
 API_KEY = "sk_test_123456789"  
 SUPPORTED_LANGUAGES = {"Tamil", "English", "Hindi", "Malayalam", "Telugu"}
 TEMP_DIR = "temp_audio_files"
 
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# --- AUTHENTICATION ---
+#  AUTHENTICATION 
 def require_api_key(f):
     def decorated_function(*args, **kwargs):
         headers_key = request.headers.get("x-api-key")
@@ -28,14 +28,14 @@ def require_api_key(f):
 # --- NOVELTY: SCIENTIFIC EXPLANATION GENERATOR ---
 def analyze_audio(file_path):
     try:
-        # Load audio (downsampled to 16khz)
+        # Load audio 
         y, sr = librosa.load(file_path, sr=16000)
         
-        # 1. Spectral Flatness (Robotic/Buzzy detection)
+        # Spectral Flatness (Robotic/Buzzy detection)
         flatness = librosa.feature.spectral_flatness(y=y)
         avg_flatness = np.mean(flatness)
         
-        # 2. Silence Ratio (Breath pause detection)
+        # Silence Ratio (Breath pause detection)
         non_silent = librosa.effects.split(y, top_db=20)
         non_silent_duration = sum([(end - start) for start, end in non_silent]) / sr
         total_duration = librosa.get_duration(y=y, sr=sr)
@@ -47,7 +47,7 @@ def analyze_audio(file_path):
         return 0.0, 0.0
 
 def classify_voice(flatness, silence_ratio):
-    # Simulated Logic for Prototype
+    
     if flatness > 0.03: 
         return "AI_GENERATED", 0.95, f"High spectral flatness ({flatness:.4f}) indicates synthetic vocoding."
     elif silence_ratio < 0.01:
@@ -55,7 +55,7 @@ def classify_voice(flatness, silence_ratio):
     else:
         return "HUMAN", 0.92, "Detected organic pitch fluctuations and natural breath intervals."
 
-# --- API ENDPOINT ---
+#  API ENDPOINT
 @app.route('/api/voice-detection', methods=['POST'])
 @require_api_key
 def voice_detection():
@@ -75,7 +75,7 @@ def voice_detection():
         with open(temp_filepath, "wb") as f:
             f.write(base64.b64decode(data['audioBase64']))
             
-        # Analyze
+        
         flatness, silence = analyze_audio(temp_filepath)
         label, score, reason = classify_voice(flatness, silence)
         
@@ -94,5 +94,5 @@ def voice_detection():
             os.remove(temp_filepath)
 
 if __name__ == '__main__':
-    # Change 5000 to 5001 here
+    
     app.run(host='0.0.0.0', port=5001, debug=True)

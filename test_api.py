@@ -2,7 +2,7 @@ import requests
 import base64
 import json
 
-# 1. Load your local MP3 file
+# Load local MP3 file
 try:
     with open("test_audio.mp3", "rb") as audio_file:
         encoded_string = base64.b64encode(audio_file.read()).decode('utf-8')
@@ -10,7 +10,7 @@ except FileNotFoundError:
     print("Error: Please put a file named 'test_audio.mp3' in this folder!")
     exit()
 
-# 2. Send it to your API (Port 5001)
+# Send to API (Port 5001)
 url = "http://127.0.0.1:5001/api/voice-detection"
 payload = {
     "language": "English",
